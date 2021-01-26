@@ -1,10 +1,15 @@
 package atm.client;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
+
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -43,6 +48,7 @@ public class AtmClient extends Application{
 	public void start(Stage primaryStage) 
 	{
 		//Ustawienia ogólne
+		AtmClient atm= new AtmClient();
 		window = primaryStage;
 		primaryStage.setTitle("Bank PKO: Aplikacja Kliencka");
 
@@ -80,8 +86,21 @@ public class AtmClient extends Application{
 		errorMsg = new Text();
 		errorMsg.setFill(Color.FIREBRICK);
 		loginPane.add(errorMsg, 1, 6);
-		//Tu dopisaæ kod GUI dla innych zak³adek
+		// Blokada wy³¹czania przez klikniêcie X
+		primaryStage.setOnCloseRequest(e -> {
+		e.consume();
+
+			// Poka¿ okno dialogowe instrukcji zamkniêcia aplikacji
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Jak roz³¹czyæ siê z serwerem");
+			alert.setHeaderText("Prawid³owy sposób roz³¹czenia z serverem Banku:");
+			alert.setContentText(
+					"Proszê u¿yæ przycisku wyjdz");
+			alert.show();
+		});
 		
+		//Tu dopisaæ kod GUI dla innych zak³adek
+	
 		loginView = new Scene(loginPane, 400, 450);		
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
@@ -91,7 +110,7 @@ public class AtmClient extends Application{
 		try {
 			hostname = InetAddress.getByName(null);
 			socket = new Socket(hostname, port);
-
+	
 			new Thread(new ProcessingThread(socket)).start();//przejscie do procesu obs³uguj¹cego aplikacje kliencka oraz komunikacje z serwerem
 
 		} catch (UnknownHostException ex) {
@@ -101,5 +120,37 @@ public class AtmClient extends Application{
 		}
 		
 	}
+	
+	//tutaj obs³uga zdarzeñ scen itd itp.
+	private class ProcessingThread implements Runnable{
+		
+		private Socket socket;
+
+		private ObjectOutputStream out;
+		private ObjectInputStream in;
+		private Scanner sc = new Scanner(System.in);	
+		
+		public ProcessingThread(Socket socket) {
+			super();
+			this.socket = socket;
+		}
+
+
+		@Override
+		public void run() {
+			
+			//proba dzia³ania przycisku Exit
+			btnLoginExit.setOnAction(e -> {			
+			
+				Platform.exit();
+			});
+		
+			//tutaj obs³uga zdarzeñ klienta
+		}
+	}
+
+	
+	
+	
 
 }

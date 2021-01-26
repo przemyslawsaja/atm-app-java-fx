@@ -16,6 +16,9 @@ public class AtmServer extends Application {
 	TextArea messages = new TextArea();
 	private static int port=9005;
 	
+	 public static void main(String[] args) {
+	        launch(args);
+	    									}
 	@Override
 	public void start(Stage primaryStage) {
 
@@ -54,7 +57,7 @@ public class AtmServer extends Application {
 				//oczekiwanie na pod³¹czenie przez klientów
 				while (true) {
 					Socket socket = serverSocket.accept();
-					new Thread(new ConnectionHandler(socket, this.mysql)).start();
+					new Thread(new ConnectionHandler(socket, this.mysql)).start();//start nowego w¹tku dla obs³ugi nowego klienta
 					messages.appendText(String.format("Nowy Klient Bankomatu Pod³¹czony.%n"));
 							 }			
 				} catch (IOException ioe) {
@@ -63,9 +66,25 @@ public class AtmServer extends Application {
 			}
 		}).start();		
 	}
-	
-	 public static void main(String[] args) {
-	        launch(args);
-	    									}
+	 
+	 public class ConnectionHandler implements Runnable {
+			
+			private Socket socket;
+			private MysqlAtmDatabase db;
+			public ConnectionHandler(Socket socket, MysqlAtmDatabase db) {
+				super();
+				this.socket = socket;
+				this.db = db;
+			}
+			
+			@Override
+			public void run() 
+			{
+				
+				//tutaj ca³y kod obs³ugi klienta
+			}
+
+		}
+
 
 }
