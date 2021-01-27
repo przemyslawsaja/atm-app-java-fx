@@ -24,10 +24,10 @@ DROP TABLE IF EXISTS `atm_card`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `atm_card` (
   `card_id` bigint(20) NOT NULL,
-  `pin` int(11) NOT NULL,
+  `pin` varchar(255) NOT NULL,
   `cvv_code` int(11) NOT NULL,
   `type` varchar(255) NOT NULL,
-  `account_number` bigint(20) NOT NULL,
+  `account_number` varchar(255) NOT NULL,
   PRIMARY KEY (`card_id`),
   KEY `account_number` (`account_number`),
   CONSTRAINT `atm_card_ibfk_1` FOREIGN KEY (`account_number`) REFERENCES `bank_account` (`account_number`)
@@ -40,6 +40,7 @@ CREATE TABLE `atm_card` (
 
 LOCK TABLES `atm_card` WRITE;
 /*!40000 ALTER TABLE `atm_card` DISABLE KEYS */;
+INSERT INTO `atm_card` VALUES (12312421,'1234',337,'debetowa','11114015601081110181488249');
 /*!40000 ALTER TABLE `atm_card` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -51,8 +52,8 @@ DROP TABLE IF EXISTS `bank_account`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bank_account` (
-  `account_number` bigint(20) NOT NULL,
-  `account_type` varchar(255) DEFAULT NULL,
+  `account_number` varchar(255) NOT NULL,
+  `account_type` varchar(255) NOT NULL,
   `balance` float NOT NULL,
   `customer_id` bigint(20) NOT NULL,
   PRIMARY KEY (`account_number`),
@@ -67,6 +68,7 @@ CREATE TABLE `bank_account` (
 
 LOCK TABLES `bank_account` WRITE;
 /*!40000 ALTER TABLE `bank_account` DISABLE KEYS */;
+INSERT INTO `bank_account` VALUES ('11114015601081110181488249','dla studentow',1800,1);
 /*!40000 ALTER TABLE `bank_account` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -88,7 +90,7 @@ CREATE TABLE `customer` (
   `phone` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -97,6 +99,7 @@ CREATE TABLE `customer` (
 
 LOCK TABLES `customer` WRITE;
 /*!40000 ALTER TABLE `customer` DISABLE KEYS */;
+INSERT INTO `customer` VALUES (1,'Andrzej','Nowak','Heila 9','33-260','Krakow',21434132,'21412431423','grzesiek@gmail.com');
 /*!40000 ALTER TABLE `customer` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -109,4 +112,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-24 18:33:31
+-- Dump completed on 2021-01-27 19:35:03

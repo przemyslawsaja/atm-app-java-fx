@@ -47,8 +47,7 @@ public class AtmClient extends Application{
 	@Override
 	public void start(Stage primaryStage) 
 	{
-		//Ustawienia ogólne
-		AtmClient atm= new AtmClient();
+		//Ustawienia ogólne		
 		window = primaryStage;
 		primaryStage.setTitle("Bank PKO: Aplikacja Kliencka");
 
@@ -98,7 +97,11 @@ public class AtmClient extends Application{
 					"Proszê u¿yæ przycisku wyjdz");
 			alert.show();
 		});
+		//proba dzia³ania przycisku Exit
+		btnLoginExit.setOnAction(e -> {			
 		
+			Platform.exit();
+		});
 		//Tu dopisaæ kod GUI dla innych zak³adek
 	
 		loginView = new Scene(loginPane, 400, 450);		
@@ -139,13 +142,9 @@ public class AtmClient extends Application{
 		@Override
 		public void run() {
 			
-			//proba dzia³ania przycisku Exit
-			btnLoginExit.setOnAction(e -> {			
 			
-				Platform.exit();
-			});
 		
-			//tutaj obs³uga zdarzeñ klienta
+			//tutaj obs³uga zdarzeñ klienta po po³aczeniu z serverem
 		}
 	}
 

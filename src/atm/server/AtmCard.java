@@ -3,17 +3,16 @@ package atm.server;
 public class AtmCard {
 
 		private long cardId;
-		private int pin;
+		private String pin;
 		private int cvv_code;
 		private String type;
 		private BankAccount account;
-		public AtmCard(long cardId, int pin, int cvv_code, String type, BankAccount account) {
+		public AtmCard(long cardId, String pin, int cvv_code, String type) {
 			super();
 			this.cardId = cardId;
 			this.pin = pin;
 			this.cvv_code = cvv_code;
-			this.type = type;
-			this.account = account;
+			this.type = type;	
 		}
 		public long getCardId() {
 			return cardId;
@@ -21,10 +20,10 @@ public class AtmCard {
 		public void setCardId(long cardId) {
 			this.cardId = cardId;
 		}
-		public int getPin() {
+		public String getPin() {
 			return pin;
 		}
-		public void setPin(int pin) {
+		public void setPin(String pin) {
 			this.pin = pin;
 		}
 		public int getCvv_code() {

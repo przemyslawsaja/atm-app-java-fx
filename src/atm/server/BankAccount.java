@@ -1,21 +1,20 @@
 package atm.server;
 
 public class BankAccount {
-	private long accountNumber;
+	private String accountNumber;
 	private String accountType;
 	private float balance;
 	private Customer customer;
-	public BankAccount(long accountNumber, String accountType, float balance, Customer customer) {
+	public BankAccount(String accountNumber, String accountType, float balance) {
 		super();
 		this.accountNumber = accountNumber;
 		this.accountType = accountType;
-		this.balance = balance;
-		this.customer = customer;
+		this.balance = balance;	
 	}
-	public long getAccountNumber() {
+	public String getAccountNumber() {
 		return accountNumber;
 	}
-	public void setAccountNumber(long accountNumber) {
+	public void setAccountNumber(String accountNumber) {
 		this.accountNumber = accountNumber;
 	}
 	public String getAccountType() {
