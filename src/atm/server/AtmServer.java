@@ -5,13 +5,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import java.sql.Statement;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -45,7 +48,7 @@ public class AtmServer extends Application {
 		primaryStage.setTitle("BANK PKO Bankomat - Server");
 	    primaryStage.show();
 		messages.appendText("L¹czenie z Baz¹ danych ...\n");
-		Connection connection = mysql.connectToDatabase("jdbc:mysql://", "127.0.0.1", "atm", "root", "root");//laczenie z baza mysql		
+		Connection connection = MysqlAtmDatabase.connectToDatabase("jdbc:mysql://", "127.0.0.1", "atm", "root", "root");//laczenie z baza mysql		
 		if(connection!=null)//sprawdz czy polaczono z baz¹
 		{
 			
@@ -53,8 +56,20 @@ public class AtmServer extends Application {
 		}
 		else		
 		{
-		 messages.appendText("B³¹d po³¹czenia z Baz¹ danych Mysql\n");		
 		
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("B³¹d po³aczenia z baz¹ Mysql Server zostanie zamkniêty");		
+			alert.show();
+			try
+			{
+			    Thread.sleep(1000);
+			    System.exit(0);
+			}
+			catch(InterruptedException ex)
+			{
+			    Thread.currentThread().interrupt();
+			}
+
 		}
 		
 		
