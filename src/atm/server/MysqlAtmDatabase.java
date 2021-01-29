@@ -29,7 +29,7 @@ public class MysqlAtmDatabase {
 		}
 		return null;
 	}
-	public boolean authenticateCustomer(Statement s,int ID,String PIN)
+	public boolean authenticateCustomer(Statement s,long ID,String PIN)
 	{
 		
 		String sql="select * from atm_card where card_id='"+ID+"' and pin='"+PIN+"';";	
@@ -45,7 +45,7 @@ public class MysqlAtmDatabase {
 			}		
 	
 	}
-	public Customer setCustomerFromDatabase(Statement s,int ID)
+	public Customer setCustomerFromDatabase(Statement s,long ID)
 	{
 		
 		String sql="select customer.* from customer inner join bank_account on bank_account.customer_id=customer.id inner join atm_card on "
@@ -76,7 +76,7 @@ public class MysqlAtmDatabase {
 			 
 	
 	}
-	public BankAccount setBankAccountFromDatabase(Statement s,int ID)
+	public BankAccount setBankAccountFromDatabase(Statement s,long ID)
 	{
 		
 		String sql="select bank_account.* from bank_account inner join atm_card on "
@@ -102,7 +102,7 @@ public class MysqlAtmDatabase {
 			 
 	
 	}
-	public AtmCard setAtmCardFromDatabase(Statement s,int ID)
+	public AtmCard setAtmCardFromDatabase(Statement s,long ID)
 	{
 		
 		String sql="select * from atm_card where card_id='"+ID+"';";	

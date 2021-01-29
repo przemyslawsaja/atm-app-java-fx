@@ -1,10 +1,14 @@
 package atm.server;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import atm.Operations;
 import java.sql.Statement;
+
+import atm.client.ClientRequest;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -105,21 +109,67 @@ public class AtmServer extends Application {
 			@Override
 			public void run() 
 			{
-				//kod tylko dla sprawdzenia funkcji - do wywalenia(po zalogowaniu uzytkownika, tworzymy obiekty klas mój pomys³ jest taki, ¿e pracujemy na obiektach klas, dopiero
-				//po wylogowaniu klienta zapisujemy zaktualizowany stan konta do bazy)
-				Statement st = mysql.createStatement(connection);
-				boolean check= mysql.authenticateCustomer(st,12312421, "1234");//tutaj trzeba dorobiæ szyfrowanie has³a, zeby wysy³ac do bazy juz zaszyfrowane has³o do porównania
-				if(check ==true) {	 messages.appendText("Uzytkownik istnieje w bazie i podano dobre haslo\n");}
-				else { messages.appendText("Nie ma u¿ytkownika o podanym ID oraz hasle\n");}
-				Customer customer = mysql.setCustomerFromDatabase(st,12312421);
-				messages.appendText(customer.getCity());
-				BankAccount bankAccount = mysql.setBankAccountFromDatabase(st, 12312421);
-				bankAccount.setCustomer(customer);
-				messages.appendText(bankAccount.getCustomer().getEmail());
-				AtmCard atmCard= mysql.setAtmCardFromDatabase(st,12312421);
-				atmCard.setAccount(bankAccount);
-				messages.appendText(atmCard.getType());						
-				//tutaj ca³y kod obs³ugi klienta
+				try {
+					ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+					ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+					Statement st = MysqlAtmDatabase.createStatement(connection);
+					ServerResponse res;
+					ClientRequest req;
+
+					//odiberz zapytanie od klienta
+					while ((req = (ClientRequest) in.readObject()) != null) {
+
+						res = new ServerResponse();
+
+						//wybierz operacje
+						switch (req.getOperation()) {
+						case AUTHENTICATE:
+							res.setOperation(req.getOperation());
+							res.setOperationSuccess(this.db.authenticateCustomer(st,req.getcardId(), req.getPin()));
+							if (!res.isOperationSuccess())								
+							{
+								res.setErrorMessage("Wprowadzi³eœ nieprawid³owe ID karty lub PIN.\nSpróbuj ponownie!");										
+							}
+							else
+							{
+								Customer customer = mysql.setCustomerFromDatabase(st,req.getcardId());
+								BankAccount bankAccount = mysql.setBankAccountFromDatabase(st, req.getcardId());
+								bankAccount.setCustomer(customer);
+								AtmCard atmCard= mysql.setAtmCardFromDatabase(st,req.getcardId());
+								atmCard.setAccount(bankAccount);					
+							}
+							out.writeObject(res);
+							break;
+						
+						}
+
+						if (req.getOperation() != Operations.EXIT) {
+							messages.appendText(String.format("%nZapytanie Klienta >>%n%s", req));
+
+							if (res.isOperationSuccess()) {
+								messages.appendText(String.format(" => OK%n"));
+							} else {
+								messages.appendText(String.format(" => B³¹d%n"));
+							}
+						} else {
+							//przypadek gdy klient siê roz³¹cza
+							if (req.getcardId() == -1) {
+								messages.appendText(
+										String.format("%nKlient Bankomatu roz³¹czony%n---%n", req.getcardId()));
+							} else {
+								messages.appendText(String.format("%nKlien Bankomatu - ID Karty #: %s Roz³¹czony.%n---%n",
+										req.getcardId()));
+							}
+						}
+
+					}
+				} catch (
+
+				IOException ioe) {
+					System.out.printf("IOException: %s%n", ioe);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
 			}
 
 		}

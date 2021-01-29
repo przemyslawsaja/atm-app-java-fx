@@ -8,8 +8,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import atm.PinEncryptionSHA1;
+import atm.server.ServerResponse;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -102,9 +106,39 @@ public class AtmClient extends Application{
 		
 			Platform.exit();
 		});
+		// Menu g³ówne
+		GridPane menuPane = new GridPane();
+		menuPane.setPadding(new Insets(20, 20, 20, 20));
+		menuPane.setAlignment(Pos.CENTER);
+		menuPane.setVgap(10);
+
+		Text welcomeMsg = new Text("Jak¹ operacjê chcesz wykonaæ?");
+		welcomeMsg.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
+
+		btnDeposit = new Button("Wp³aæ");
+		btnWithdraw = new Button("Wyp³aæ");
+		btnCheckBal = new Button("SprawdŸ Saldo");
+		btnMainMenuExit = new Button("Zakoñcz Sesjê");
+
+		btnDeposit.setMinWidth(275);
+		btnWithdraw.setMinWidth(275);
+		btnCheckBal.setMinWidth(275);
+		btnMainMenuExit.setMinWidth(275);
+
+		btnDeposit.setMinHeight(50);
+		btnWithdraw.setMinHeight(50);
+		btnCheckBal.setMinHeight(50);
+		btnMainMenuExit.setMinHeight(50);
+
+		menuPane.add(welcomeMsg, 0, 0, 2, 1);
+		menuPane.add(btnCheckBal, 0, 1);
+		menuPane.add(btnDeposit, 0, 2);
+		menuPane.add(btnWithdraw, 0, 3);
+		menuPane.add(btnMainMenuExit, 0, 4);
 		//Tu dopisaæ kod GUI dla innych zak³adek
 	
-		loginView = new Scene(loginPane, 400, 450);		
+		loginView = new Scene(loginPane, 400, 450);	
+		mainMenuView = new Scene(menuPane, 400, 450);
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
 		primaryStage.show();
@@ -128,28 +162,123 @@ public class AtmClient extends Application{
 	private class ProcessingThread implements Runnable{
 		
 		private Socket socket;
-
+		private Screen currentScreen = Screen.LOGIN;
 		private ObjectOutputStream out;
 		private ObjectInputStream in;
 		private Scanner sc = new Scanner(System.in);	
-		
-		public ProcessingThread(Socket socket) {
+		private int cardId;
+		private String pin;
+		private double amt;
+		private ClientRequest req;
+		private ServerResponse res;
+		public ProcessingThread(Socket socket) throws IOException {
 			super();
 			this.socket = socket;
+		
+			this.out = new ObjectOutputStream(socket.getOutputStream());
+			this.in = new ObjectInputStream(socket.getInputStream());
+		
 		}
 
 
 		@Override
 		public void run() {
-			
-			
-		
-			//tutaj obs³uga zdarzeñ klienta po po³aczeniu z serverem
+			try {
+				goToScreen(currentScreen);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-	}
+
+		private void goToScreen(Screen screen) throws IOException {
+			switch (screen) {
+
+			case LOGIN:
+				txtUserID.textProperty().addListener(new ChangeListener<String>() {
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						if (!newValue.matches("\\d{0,12}?")) {
+							txtUserID.setText(oldValue);
+						}
+					}
+				});
+				txtPin.textProperty().addListener(new ChangeListener<String>() {
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						if (!newValue.matches("\\d{0,4}?")) {
+							txtPin.setText(oldValue);
+						}
+					}
+				});
+				btnSignIn.setOnAction(e -> {
+					if (!(txtPin.getText().equals("") || txtUserID.getText().equals(""))) {
+						cardId = Integer.parseInt(txtUserID.getText());
+						int pintohash= Integer.parseInt(txtPin.getText());
+						pin = PinEncryptionSHA1.SHA1(pintohash);
+						
+						req = ClientRequest.authenticate(cardId, pin);
+						try {
+							out.writeObject(req);
+							processServerRes();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+					} else {
+						errorMsg.setText("Wprowadz ID Karty oraz PIN!");
+					}
+				});
+				btnLoginExit.setOnAction(e -> {
+					req = ClientRequest.exitSession(-1);
+					try {
+						out.writeObject(req);
+					} catch (IOException e1) {
+						
+						e1.printStackTrace();
+					}
+					Platform.exit();
+				});
+				break;
+			case MAIN_MENU:
+				window.setScene(mainMenuView);
+				
+				//przycisk wyjœcia
+				btnMainMenuExit.setOnAction(e -> {
+					req = ClientRequest.exitSession(cardId);
+					try {
+						out.writeObject(req);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					Platform.exit();
+				});
+				break;
+				
+			}
+		}
+
+		private void processServerRes() {
+			try {
+				if ((res = (ServerResponse) in.readObject()) != null) {
+					switch (req.getOperation()) {
+					case AUTHENTICATE:
+						if (!res.isOperationSuccess()) {
+							currentScreen = Screen.LOGIN;
+							errorMsg.setText(res.getErrorMessage());
+						} else {
+							currentScreen = Screen.MAIN_MENU;
+							goToScreen(currentScreen);
+						}
+						break;					
+					}
+				}
+			} catch (Exception ex) {
+
+			}
+		}
+	
 
 	
-	
-	
 
+}
 }
