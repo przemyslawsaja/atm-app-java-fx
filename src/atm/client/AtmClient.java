@@ -39,7 +39,7 @@ public class AtmClient extends Application{
 	Scene loginView, mainMenuView, balanceView, depositView, withdrawView;
 	TextField txtUserID, txtPin, txtDeposit, txtWithdraw;
 	Button btnSignIn, btnDeposit, btnWithdraw, btnCheckBal, btnMainMenuExit, btnMain, btnDepMain, btnWdMain,
-			btnBalInqClose, btnDepositCash, btnWithdrawCash, btnLoginExit;
+			btnBalInqClose, btnDepositCash, btnWithdrawCash, btnLoginExit, btn50, btn100, btn200, btn500, btnCustomWithdraw;
 	Text errorMsg, withdrawError, depositError;
 	Label lblBalance, lblAmt;
 	static InetAddress hostname;
@@ -186,11 +186,48 @@ public class AtmClient extends Application{
 		depBorderPane.setCenter(depositPane);
 		depBorderPane.setBottom(btnDepMain);
 		//Tu dopisaæ kod GUI dla innych zak³adek
+		
+		
+		//panel wyp³ata pieniêdzy
+		
+		GridPane withdrawPane = new GridPane();
+		withdrawPane.setAlignment(Pos.CENTER);
+		withdrawPane.setVgap(15);
+		withdrawPane.setHgap(15);
+
+		btnWdMain = new Button("Menu G³ówne");
+		Label lblWithdraw = new Label("Wprowadz kwotê któr¹ chcesz wyp³aciæ:");
+		lblWithdraw.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
+		lblWithdraw.setWrapText(true);
+		btnWithdrawCash = new Button("Wyp³aæ");
+		btnWithdrawCash.setMinSize(100, 40);
+		txtWithdraw = new TextField();
+		txtWithdraw.setMinSize(250, 40);
+		withdrawError = new Text();
+		withdrawError.setFill(Color.FIREBRICK);
+		withdrawError.setWrappingWidth(300);
+
+		withdrawPane.add(lblWithdraw, 0, 0, 2, 1);
+		withdrawPane.add(txtWithdraw, 0, 2);
+		withdrawPane.add(btnWithdrawCash, 1, 2);
+		withdrawPane.add(withdrawError, 0, 4, 2, 1);
+
+		BorderPane wdBorderPane = new BorderPane();
+		wdBorderPane.setPadding(new Insets(15, 15, 15, 15));
+		wdBorderPane.setCenter(withdrawPane);
+		wdBorderPane.setBottom(btnWdMain);
+		
+		
+		
+		
+		
+		
 	
 		loginView = new Scene(loginPane, 400, 450);	
 		mainMenuView = new Scene(menuPane, 400, 450);
 		balanceView = new Scene(balancePane, 400, 450);
 		depositView = new Scene(depBorderPane, 400, 450);
+		withdrawView = new Scene(wdBorderPane,400, 450);
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
 		primaryStage.show();
@@ -306,10 +343,20 @@ public class AtmClient extends Application{
 						ex.printStackTrace();
 					}
 				});
-				//przycisk wyp³acania pieniêdzy
+				//przycisk wp³acania pieniêdzy
 				btnDeposit.setOnAction(e -> {
 					try {
 						currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
+						goToScreen(currentScreen);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});
+				
+				//przycisk wyp³acania pieniêdzy
+				btnWithdraw.setOnAction(e -> {
+					try {
+						currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
 						goToScreen(currentScreen);
 					} catch (IOException ex) {
 						ex.printStackTrace();
@@ -329,6 +376,7 @@ public class AtmClient extends Application{
 					Platform.exit();
 				});
 				break;
+			case WIDTHDRAW_RESULTS:
 			case DEPOSIT_RESULTS:
 			case BALANCE_INQUIRY:
 				window.setScene(balanceView);
@@ -402,6 +450,64 @@ public class AtmClient extends Application{
 					}
 				});
 				break;
+				
+			case WITHDRAW_PROMPT_AMOUNT:
+				window.setScene(withdrawView);
+				txtWithdraw.setText("");
+				withdrawError.setText("");
+				txtWithdraw.textProperty().addListener(new ChangeListener<String>() {
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						if (!newValue.matches("\\d{0,12}?")) {
+							txtWithdraw.setText(oldValue);
+						}
+					}
+				});	
+				
+				
+				btnWithdrawCash.setOnAction(e -> {
+					try {
+						
+						if (!txtWithdraw.getText().equals("")) {
+							amt = Float.parseFloat(txtWithdraw.getText());	
+							if(amt < 50) {
+								currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
+								withdrawError.setText("Minimalna kwota, mo¿liwa do wyp³acenia do 50z³!");
+							}
+							else if(amt%10.00!=0)
+							{
+								currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
+								withdrawError.setText("Kwota któr¹ wprowadzi³eœ jest nieprawid³owa!");
+							}
+							else {							
+							req = ClientRequest.withDraw(cardId,amt);
+							out.writeObject(req);
+							processServerRes();
+							lblBalance.setText(String.format("Twoje Saldo po wyp³acie Wynosi %.2f PLN", res.getUpdatedBalance()));
+							lblAmt.setText(String.format("Operacja wyp³acenia pieniêdzy powiod³¹ siê. Wyp³aci³eœ %.2f PLN", amt));
+							
+							}
+						} 											
+						else {
+							currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
+							depositError.setText("Wprowadz kwotê któr¹ chcesz wyp³aciæ!");
+							}
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});
+				
+				
+				
+				btnWdMain.setOnAction(e -> {
+					try {
+						currentScreen = screen.MAIN_MENU;
+						goToScreen(currentScreen);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				});
+				break;
 			}
 		}
 
@@ -417,7 +523,18 @@ public class AtmClient extends Application{
 							currentScreen = Screen.MAIN_MENU;
 							goToScreen(currentScreen);
 						}
-						break;					
+						break;
+					case WITHDRAW:
+						withdrawError.setText("");
+						if(!res.isOperationSuccess()) {
+							currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
+							withdrawError.setText(res.getErrorMessage());
+						}else {
+							currentScreen = Screen.WIDTHDRAW_RESULTS;
+							goToScreen(currentScreen);
+						}
+						
+						break;
 					}
 				}
 			} catch (Exception ex) {

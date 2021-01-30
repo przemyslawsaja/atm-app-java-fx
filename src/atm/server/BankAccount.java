@@ -40,6 +40,18 @@ public class BankAccount {
 		this.balance +=amount;
 	}
 	
+	public boolean withdraw (float amount)
+	{
+		if(this.balance < amount) {
+			return false;
+		}
+		else {
+			this.balance -=amount;
+			return true;
+		}
+		
+	}
+	
 	
 
 }

@@ -48,6 +48,9 @@ public class ClientRequest implements Serializable {
 	public static ClientRequest deposit(int id, float amt) {
 		return new ClientRequest(id,amt, Operations.DEPOSIT);
 	}
+	public static ClientRequest withDraw(int id, float amt) {
+		return new ClientRequest(id,amt, Operations.WITHDRAW);
+	}
 
 	public long getcardId() {
 		return cardId;

@@ -154,7 +154,7 @@ public class AtmServer extends Application {
 							res.setUpdatedBalance(this.bankAccount.getBalance());
 							out.writeObject(res);
 							break;
-						case DEPOSIT://wyp³ata pieniedzy
+						case DEPOSIT://wp³ata pieniedzy
 							if(db.getAccountBalance(st,bankAccount.getAccountNumber())!=-1)
 							{
 								bankAccount.setBalance(db.getAccountBalance(st,bankAccount.getAccountNumber()));
@@ -165,6 +165,29 @@ public class AtmServer extends Application {
 							this.bankAccount.deposit(req.getAmount());
 							MysqlAtmDatabase.balanceUpdate(st,this.bankAccount.getBalance(),this.bankAccount.getAccountNumber());
 							res.setUpdatedBalance(this.bankAccount.getBalance());
+							out.writeObject(res);
+							break;
+							
+							//wyp³ata pieniedzy
+						case WITHDRAW:
+							if(db.getAccountBalance(st,bankAccount.getAccountNumber())!=-1)
+							{
+								bankAccount.setBalance(db.getAccountBalance(st,bankAccount.getAccountNumber()));
+							}
+							res.setOperation(req.getOperation());
+							
+							res.setOperationSuccess(bankAccount.withdraw(req.getAmount()));
+							
+							res.setRequestedAmount(req.getAmount());
+							if (!res.isOperationSuccess())								
+							{
+								res.setErrorMessage("Nie posiadasz wystarczaj¹cych œrodków do wyp³aty wprowadzonej kwoty!");										
+							}
+							else
+							{
+								MysqlAtmDatabase.balanceUpdate(st,this.bankAccount.getBalance(),this.bankAccount.getAccountNumber());	
+								res.setUpdatedBalance(this.bankAccount.getBalance());	
+							}
 							out.writeObject(res);
 							break;
 						
