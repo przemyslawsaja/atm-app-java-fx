@@ -122,9 +122,25 @@ public class MysqlAtmDatabase {
 		    	System.out.println("Zapytanie nie wykonane! " + e.getMessage() + ": " + e.getErrorCode());
 				return null;
 		    }
-			 
-	
 	}
+		public float getAccountBalance(Statement s,String accountNumber)
+		{
+			String sql="select * from bank_account where account_number='"+accountNumber+"';";	
+			
+			try{
+				ResultSet rss=	s.executeQuery(sql);
+			      if(rss.next()!= false){ 
+			    	float balance= rss.getFloat("balance"); 	 	 
+			    	 return balance;
+			      }
+			      else {return -1;}
+			   
+			    } catch (SQLException e) {
+			    	System.out.println("Zapytanie nie wykonane! " + e.getMessage() + ": " + e.getErrorCode());
+					return -1;
+			    }
+		}
+	
 	public static void balanceUpdate(Statement s, float balance,String accountNumber) {
 		try {
 			String sql= "update bank_account set balance="+balance+" where account_number="+accountNumber+";";

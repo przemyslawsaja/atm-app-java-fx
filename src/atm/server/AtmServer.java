@@ -145,12 +145,20 @@ public class AtmServer extends Application {
 							out.writeObject(res);
 							break;
 						case BALANCE_INQUIRY://sprawdzenie stanu konta
+							if(db.getAccountBalance(st,bankAccount.getAccountNumber())!=-1)
+									{
+										bankAccount.setBalance(db.getAccountBalance(st,bankAccount.getAccountNumber()));
+									}
 							res.setOperation(req.getOperation());
-							res.setOperationSuccess(true);
+							res.setOperationSuccess(true);							
 							res.setUpdatedBalance(this.bankAccount.getBalance());
 							out.writeObject(res);
 							break;
 						case DEPOSIT://wyp³ata pieniedzy
+							if(db.getAccountBalance(st,bankAccount.getAccountNumber())!=-1)
+							{
+								bankAccount.setBalance(db.getAccountBalance(st,bankAccount.getAccountNumber()));
+							}
 							res.setOperation(req.getOperation());
 							res.setOperationSuccess(true);
 							res.setRequestedAmount(req.getAmount());
