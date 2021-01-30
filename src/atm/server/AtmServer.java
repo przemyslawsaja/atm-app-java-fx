@@ -28,7 +28,7 @@ public class AtmServer extends Application {
 	MysqlAtmDatabase mysql=new MysqlAtmDatabase();
 	TextArea messages = new TextArea();
 	private static int port=9005;
-	
+
 	 public static void main(String[] args) {
 	        launch(args);
 	    									}
@@ -99,11 +99,15 @@ public class AtmServer extends Application {
 			private Socket socket;
 			private MysqlAtmDatabase db;
 			private Connection connection;
+			private Customer customer;
+			private BankAccount bankAccount;
+			private AtmCard atmCard;
 			public ConnectionHandler(Socket socket, MysqlAtmDatabase db,Connection connection) {
 				super();
 				this.socket = socket;
 				this.db = db;
 				this.connection=connection;
+				
 			}
 			
 			@Override
@@ -132,12 +136,18 @@ public class AtmServer extends Application {
 							}
 							else
 							{
-								Customer customer = mysql.setCustomerFromDatabase(st,req.getcardId());
-								BankAccount bankAccount = mysql.setBankAccountFromDatabase(st, req.getcardId());
+								customer = mysql.setCustomerFromDatabase(st,req.getcardId());
+								bankAccount = mysql.setBankAccountFromDatabase(st, req.getcardId());
 								bankAccount.setCustomer(customer);
-								AtmCard atmCard= mysql.setAtmCardFromDatabase(st,req.getcardId());
+								atmCard= mysql.setAtmCardFromDatabase(st,req.getcardId());
 								atmCard.setAccount(bankAccount);					
 							}
+							out.writeObject(res);
+							break;
+						case BALANCE_INQUIRY://sprawdzenie stanu konta
+							res.setOperation(req.getOperation());
+							res.setOperationSuccess(true);
+							res.setUpdatedBalance(this.bankAccount.getBalance());
 							out.writeObject(res);
 							break;
 						

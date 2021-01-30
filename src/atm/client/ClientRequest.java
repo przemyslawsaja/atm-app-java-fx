@@ -29,8 +29,15 @@ public class ClientRequest implements Serializable {
 
 		this.operation = operation;
 	}
+	private ClientRequest(Operations operation) {
+	
+		this.operation = operation;
+	}
 	public static ClientRequest exitSession(int id) {
 		return new ClientRequest(id,Operations.EXIT);
+	}
+	public static ClientRequest checkBalance(long id) {
+		return new ClientRequest(id,Operations.BALANCE_INQUIRY);
 	}
 
 	public long getcardId() {

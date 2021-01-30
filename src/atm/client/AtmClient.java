@@ -135,10 +135,33 @@ public class AtmClient extends Application{
 		menuPane.add(btnDeposit, 0, 2);
 		menuPane.add(btnWithdraw, 0, 3);
 		menuPane.add(btnMainMenuExit, 0, 4);
+		
+		//Panel Saldo konta
+		GridPane balancePane = new GridPane();
+
+		balancePane.setPadding(new Insets(0, 10, 10, 10));
+		balancePane.setAlignment(Pos.CENTER);
+		balancePane.setVgap(15);
+
+		lblBalance = new Label("");
+		lblBalance.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+		lblBalance.setWrapText(true);
+		lblBalance.setTextAlignment(TextAlignment.CENTER);
+		lblAmt = new Label("");
+		lblAmt.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+		lblAmt.setWrapText(true);
+		btnMain = new Button("Menu G³ówne");
+		btnBalInqClose = new Button("WyjdŸ");
+
+		balancePane.add(lblAmt, 0, 0, 2, 1);
+		balancePane.add(lblBalance, 0, 2, 2, 1);
+		balancePane.add(btnBalInqClose, 3, 4);
+		balancePane.add(btnMain, 0, 4);
 		//Tu dopisaæ kod GUI dla innych zak³adek
 	
 		loginView = new Scene(loginPane, 400, 450);	
 		mainMenuView = new Scene(menuPane, 400, 450);
+		balanceView = new Scene(balancePane, 400, 450);
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
 		primaryStage.show();
@@ -241,6 +264,21 @@ public class AtmClient extends Application{
 			case MAIN_MENU:
 				window.setScene(mainMenuView);
 				
+				btnCheckBal.setOnAction(e -> {
+					try {
+						currentScreen = Screen.BALANCE_INQUIRY;
+						goToScreen(currentScreen);
+						req = ClientRequest.checkBalance(cardId);
+						out.writeObject(req);
+						processServerRes();
+						lblBalance.setText(String.format("Twój stan Konta wynosi %.2f PLN", res.getUpdatedBalance()));
+						lblAmt.setText("");
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});	
+											
+				
 				//przycisk wyjœcia
 				btnMainMenuExit.setOnAction(e -> {
 					req = ClientRequest.exitSession(cardId);
@@ -253,7 +291,29 @@ public class AtmClient extends Application{
 					Platform.exit();
 				});
 				break;
-				
+			case BALANCE_INQUIRY:
+				window.setScene(balanceView);
+				//przycisk menu g³ówne
+				btnMain.setOnAction(e -> {
+					try {
+						currentScreen = Screen.MAIN_MENU;
+						goToScreen(currentScreen);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});
+				//przycisk wyjdz z aplikacji z menu sprawdzenia salda
+				btnBalInqClose.setOnAction(e -> {
+					req = ClientRequest.exitSession(cardId);
+					try {
+						out.writeObject(req);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					Platform.exit();
+				});
+				break;
 			}
 		}
 

@@ -7,8 +7,8 @@ import atm.Operations;
 public class ServerResponse implements Serializable {
 	private Operations operation;
 	private boolean operationSuccess;
-	private double updatedBalance;
-	private double requestedAmount;
+	private float updatedBalance;
+	private float requestedAmount;
 	private String errorMessage;
 
 	public ServerResponse() {
@@ -35,6 +35,13 @@ public class ServerResponse implements Serializable {
 
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+	public double getUpdatedBalance() {
+		return updatedBalance;
+	}
+
+	public void setUpdatedBalance(float updatedBalance) {
+		this.updatedBalance = updatedBalance;
 	}
 
 	@Override
