@@ -125,5 +125,14 @@ public class MysqlAtmDatabase {
 			 
 	
 	}
+	public static void balanceUpdate(Statement s, float balance,String accountNumber) {
+		try {
+			String sql= "update bank_account set balance="+balance+" where account_number="+accountNumber+";";
+			s.executeUpdate(sql);
+		} catch (SQLException e) {
+			System.out.println("Zapytanie nie wykonane! " + e.getMessage() + ": " + e.getErrorCode());
+		}
+		
+	}
 
 }

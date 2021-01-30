@@ -150,6 +150,15 @@ public class AtmServer extends Application {
 							res.setUpdatedBalance(this.bankAccount.getBalance());
 							out.writeObject(res);
 							break;
+						case DEPOSIT://wyp³ata pieniedzy
+							res.setOperation(req.getOperation());
+							res.setOperationSuccess(true);
+							res.setRequestedAmount(req.getAmount());
+							this.bankAccount.deposit(req.getAmount());
+							MysqlAtmDatabase.balanceUpdate(st,this.bankAccount.getBalance(),this.bankAccount.getAccountNumber());
+							res.setUpdatedBalance(this.bankAccount.getBalance());
+							out.writeObject(res);
+							break;
 						
 						}
 

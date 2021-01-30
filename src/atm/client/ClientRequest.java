@@ -8,7 +8,7 @@ import atm.Operations;
 public class ClientRequest implements Serializable {
 	private long cardId;
 	private String pin;
-	private double amount;
+	private float amount;
 	private Operations operation;
 
 	// metoda wysy³ana do serwera celem autoryzacji u¿ytkownika has³o w formie zaszyfrowanej
@@ -29,6 +29,12 @@ public class ClientRequest implements Serializable {
 
 		this.operation = operation;
 	}
+	private ClientRequest(long id,float amount, Operations operation) {
+		this.cardId = id;
+			this.amount = amount;
+
+		this.operation = operation;
+	}
 	private ClientRequest(Operations operation) {
 	
 		this.operation = operation;
@@ -39,9 +45,16 @@ public class ClientRequest implements Serializable {
 	public static ClientRequest checkBalance(long id) {
 		return new ClientRequest(id,Operations.BALANCE_INQUIRY);
 	}
+	public static ClientRequest deposit(int id, float amt) {
+		return new ClientRequest(id,amt, Operations.DEPOSIT);
+	}
 
 	public long getcardId() {
 		return cardId;
+	}
+	public float getAmount()
+	{
+		return amount;
 	}
 
 	public String getPin() {

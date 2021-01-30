@@ -35,6 +35,10 @@ public class BankAccount {
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
+	public void deposit (float amount)
+	{
+		this.balance +=amount;
+	}
 	
 	
 

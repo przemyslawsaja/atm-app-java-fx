@@ -23,6 +23,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -157,11 +158,39 @@ public class AtmClient extends Application{
 		balancePane.add(lblBalance, 0, 2, 2, 1);
 		balancePane.add(btnBalInqClose, 3, 4);
 		balancePane.add(btnMain, 0, 4);
+		//panel wp³aty pieniedzy 
+		GridPane depositPane = new GridPane();
+		depositPane.setAlignment(Pos.CENTER);
+		depositPane.setVgap(15);
+		depositPane.setHgap(15);
+
+		btnDepMain = new Button("Menu G³ówne");
+		Label lblDeposit = new Label("Wprowadz Kwotê któr¹ chcesz wp³aciæ:");
+		lblDeposit.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
+		lblDeposit.setWrapText(true);
+		btnDepositCash = new Button("Wp³aæ");
+		btnDepositCash.setMinSize(100, 40);
+		txtDeposit = new TextField();
+		txtDeposit.setMinSize(250, 40);
+		depositError = new Text();
+		depositError.setFill(Color.FIREBRICK);
+		depositError.setWrappingWidth(300);
+
+		depositPane.add(lblDeposit, 0, 0, 2, 1);
+		depositPane.add(txtDeposit, 0, 2);
+		depositPane.add(btnDepositCash, 1, 2);
+		depositPane.add(depositError, 0, 4, 2, 1);
+
+		BorderPane depBorderPane = new BorderPane();
+		depBorderPane.setPadding(new Insets(15, 15, 15, 15));
+		depBorderPane.setCenter(depositPane);
+		depBorderPane.setBottom(btnDepMain);
 		//Tu dopisaæ kod GUI dla innych zak³adek
 	
 		loginView = new Scene(loginPane, 400, 450);	
 		mainMenuView = new Scene(menuPane, 400, 450);
 		balanceView = new Scene(balancePane, 400, 450);
+		depositView = new Scene(depBorderPane, 400, 450);
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
 		primaryStage.show();
@@ -191,7 +220,7 @@ public class AtmClient extends Application{
 		private Scanner sc = new Scanner(System.in);	
 		private int cardId;
 		private String pin;
-		private double amt;
+		private float amt;
 		private ClientRequest req;
 		private ServerResponse res;
 		public ProcessingThread(Socket socket) throws IOException {
@@ -276,7 +305,16 @@ public class AtmClient extends Application{
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
-				});	
+				});
+				//przycisk wyp³acania pieniêdzy
+				btnDeposit.setOnAction(e -> {
+					try {
+						currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
+						goToScreen(currentScreen);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});
 											
 				
 				//przycisk wyjœcia
@@ -291,6 +329,7 @@ public class AtmClient extends Application{
 					Platform.exit();
 				});
 				break;
+			case DEPOSIT_RESULTS:
 			case BALANCE_INQUIRY:
 				window.setScene(balanceView);
 				//przycisk menu g³ówne
@@ -312,6 +351,46 @@ public class AtmClient extends Application{
 						e1.printStackTrace();
 					}
 					Platform.exit();
+				});
+				break;
+			case DEPOSIT_PROMPT_AMOUNT:
+				window.setScene(depositView);
+				txtDeposit.setText("");
+				depositError.setText("");
+				txtDeposit.textProperty().addListener(new ChangeListener<String>() {
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						if (!newValue.matches("\\d{0,7}([\\.]\\d{0,4})?")) {
+							txtDeposit.setText(oldValue);
+						}
+					}
+				});				
+				btnDepositCash.setOnAction(e -> {
+					try {
+						if (!txtDeposit.getText().equals("")) {
+							amt = Float.parseFloat(txtDeposit.getText());
+							req = ClientRequest.deposit(cardId,amt);
+							out.writeObject(req);
+							processServerRes();
+							lblBalance.setText(String.format("Twoje Saldo po wp³acie Wynosi %.2f PLN", res.getUpdatedBalance()));
+							lblAmt.setText(String.format("Operacja wp³acenia pieniêdzy powiod³¹ siê. Wp³aci³eœ %.2f PLN", amt));
+							currentScreen = Screen.DEPOSIT_RESULTS;
+							goToScreen(currentScreen);
+						} else {
+							currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
+							depositError.setText("Wprowadz kwotê któr¹ chcesz wp³aciæ!");
+						}
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});
+				btnDepMain.setOnAction(e -> {
+					try {
+						currentScreen = screen.MAIN_MENU;
+						goToScreen(currentScreen);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				});
 				break;
 			}

@@ -43,6 +43,10 @@ public class ServerResponse implements Serializable {
 	public void setUpdatedBalance(float updatedBalance) {
 		this.updatedBalance = updatedBalance;
 	}
+	public void setRequestedAmount(float amount)
+	{
+		this.requestedAmount=amount;
+	}
 
 	@Override
 	public String toString() {
