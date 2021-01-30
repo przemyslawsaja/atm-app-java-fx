@@ -360,15 +360,22 @@ public class AtmClient extends Application{
 				txtDeposit.textProperty().addListener(new ChangeListener<String>() {
 					public void changed(ObservableValue<? extends String> observable, String oldValue,
 							String newValue) {
-						if (!newValue.matches("\\d{0,7}([\\.]\\d{0,4})?")) {
+						if (!newValue.matches("\\d{0,12}?")) {
 							txtDeposit.setText(oldValue);
 						}
 					}
 				});				
 				btnDepositCash.setOnAction(e -> {
 					try {
+						
 						if (!txtDeposit.getText().equals("")) {
-							amt = Float.parseFloat(txtDeposit.getText());
+							amt = Float.parseFloat(txtDeposit.getText());							
+							if(amt%10.00!=0)
+							{
+								currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
+								depositError.setText("Kwota któr¹ wprowadzi³eœ jest nieprawid³owa!");
+							}
+							else {							
 							req = ClientRequest.deposit(cardId,amt);
 							out.writeObject(req);
 							processServerRes();
@@ -376,10 +383,12 @@ public class AtmClient extends Application{
 							lblAmt.setText(String.format("Operacja wp³acenia pieniêdzy powiod³¹ siê. Wp³aci³eœ %.2f PLN", amt));
 							currentScreen = Screen.DEPOSIT_RESULTS;
 							goToScreen(currentScreen);
-						} else {
+							}
+						} 											
+						else {
 							currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
 							depositError.setText("Wprowadz kwotê któr¹ chcesz wp³aciæ!");
-						}
+							}
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
