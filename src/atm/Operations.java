@@ -5,5 +5,6 @@ public enum Operations {
 	BALANCE_INQUIRY,
 	DEPOSIT,
 	WITHDRAW,
+	WITHDRAW_CUSTOM,
 	EXIT
 }

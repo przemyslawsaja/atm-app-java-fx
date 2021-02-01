@@ -6,12 +6,12 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX">
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/javafx">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/rkurek/git/atm-app-java-fx/mysql-connector-java-5.1.37-bin.jar">
+	<classpathentry kind="lib" path="C:/Users/Komp/Desktop/GitRepo/atm-app-java-fx/mysql-connector-java-5.1.37-bin.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>

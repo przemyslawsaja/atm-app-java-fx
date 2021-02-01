@@ -51,6 +51,9 @@ public class ClientRequest implements Serializable {
 	public static ClientRequest withDraw(int id, float amt) {
 		return new ClientRequest(id,amt, Operations.WITHDRAW);
 	}
+	public static ClientRequest withDrawCustom(int id, float amt) {
+		return new ClientRequest(id,amt, Operations.WITHDRAW_CUSTOM);
+	}
 
 	public long getcardId() {
 		return cardId;

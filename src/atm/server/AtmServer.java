@@ -169,6 +169,7 @@ public class AtmServer extends Application {
 							break;
 							
 							//wyp³ata pieniedzy
+						case WITHDRAW_CUSTOM:
 						case WITHDRAW:
 							if(db.getAccountBalance(st,bankAccount.getAccountNumber())!=-1)
 							{
