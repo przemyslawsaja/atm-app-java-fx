@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+
+
 import atm.Operations;
 import atm.PinEncryptionSHA1;
 import atm.server.ServerResponse;
@@ -17,12 +19,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -40,7 +45,7 @@ public class AtmClient extends Application{
 	Scene loginView, mainMenuView, balanceView, depositView, withdrawView,withdrawmoney;
 	TextField txtUserID, txtPin, txtDeposit, txtWithdraw;
 	Button btnSignIn, btnDeposit, btnWithdraw, btnCheckBal, btnMainMenuExit, btnMain, btnDepMain,btnWdMain2,btnWdMain,
-			btnBalInqClose, btnDepositCash, btnWithdrawCash, btnLoginExit, btn50, btn100, btn200, btn500, btnCustomWithdraw;
+			btnBalInqClose, btnDepositCash, btnWithdrawCash, btnLoginExit, btn50, btn100, btn200, btn500, btn1000, btnCustomWithdraw;
 	Text errorMsg, withdrawError, depositError,withdraw2Error;
 	Label lblBalance, lblAmt;
 	static InetAddress hostname;
@@ -55,15 +60,15 @@ public class AtmClient extends Application{
 	{
 		//Ustawienia ogólne		
 		window = primaryStage;
-		primaryStage.setTitle("Bank PKO: Aplikacja Kliencka");
-
+		primaryStage.setTitle("Poly Bank: Aplikacja Kliencka");
+		
 		// Panel Logowania
 		GridPane loginPane = new GridPane();
 		loginPane.setAlignment(Pos.CENTER);
 		loginPane.setHgap(10);
 		loginPane.setVgap(10);
 		loginPane.setPadding(new Insets(25, 25, 25, 25));
-		Text title = new Text("Witamy W Banku PKO\nWprowadz ID karty oraz PIN:");
+		Text title = new Text("Witamy w Poly Bank\nWprowadz ID karty oraz PIN:");
 		title.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
 		title.setTextAlignment(TextAlignment.CENTER);
 		loginPane.add(title, 0, 0, 2, 1);
@@ -230,6 +235,7 @@ public class AtmClient extends Application{
 		btn100 = new Button("100");
 		btn200 = new Button("200");
 		btn500 = new Button("500");
+		btn1000 = new Button("1000");
 		btnCustomWithdraw = new Button("Inna");
 		btnWdMain2 = new Button("Menu G³ówne");
 		
@@ -237,14 +243,16 @@ public class AtmClient extends Application{
 		btn100.setMinWidth(275);
 		btn200.setMinWidth(275);
 		btn500.setMinWidth(275);
+		btn1000.setMinWidth(275);
 		btnCustomWithdraw.setMinWidth(275);
 		btnWdMain2.setMinWidth(100);
 		
-		btn50.setMinHeight(50);
-		btn100.setMinHeight(50);
-		btn200.setMinHeight(50);
-		btn500.setMinHeight(50);
-		btnCustomWithdraw.setMinHeight(50);
+		btn50.setMinHeight(40);
+		btn100.setMinHeight(40);
+		btn200.setMinHeight(40);
+		btn500.setMinHeight(40);
+		btn1000.setMinHeight(40);
+		btnCustomWithdraw.setMinHeight(40);
 		
 		btnWdMain2.setMinHeight(20);
 		
@@ -257,12 +265,20 @@ public class AtmClient extends Application{
 		withdraw.add(btn100, 0, 2);
 		withdraw.add(btn200, 0, 3);
 		withdraw.add(btn500, 0, 4);
-		withdraw.add(btnCustomWithdraw, 0, 5);			
-		withdraw.add(withdraw2Error, 0, 6, 2, 1);
+		withdraw.add(btn1000, 0, 5);
+		withdraw.add(btnCustomWithdraw, 0, 6);			
+		withdraw.add(withdraw2Error, 0, 8, 2, 1);
 		withdraw.add(btnWdMain2, 0, 10, 2, 1);		
+				
+		loginView = new Scene(loginPane, 400, 450);
+		
+		/*
+		Image backgroundImg = new Image("file:gfx/tlo.jpg");
+		ImageView mv=new ImageView(backgroundImg);
+		loginPane.getChildren().addAll(mv);
+		*/
 		
 		
-		loginView = new Scene(loginPane, 400, 450);	
 		mainMenuView = new Scene(menuPane, 400, 450);
 		balanceView = new Scene(balancePane, 400, 450);
 		depositView = new Scene(depBorderPane, 400, 450);
@@ -270,6 +286,7 @@ public class AtmClient extends Application{
 		withdrawmoney = new Scene(withdraw,400, 450);
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
+		primaryStage.getIcons().add(new Image("file:gfx/logo.png"));
 		primaryStage.show();
 		Socket socket = null;
 		//po³¹czenie z serwerem
@@ -514,10 +531,10 @@ public class AtmClient extends Application{
 								currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
 								withdrawError.setText("Minimalna kwota, mo¿liwa do wyp³acenia do 50z³!");
 							}
-							else if(amt%10.00!=0)
+							else if(amt%50.00!=0)
 							{
 								currentScreen = Screen.WITHDRAW_PROMPT_AMOUNT;
-								withdrawError.setText("Kwota któr¹ wprowadzi³eœ jest nieprawid³owa!");
+								withdrawError.setText("Kwota, któr¹ wprowadzi³eœ jest nieprawid³owa! Mo¿liwoœæ wyp³aty sumy, która jest wielokrotnoœci¹ 50.");
 							}
 							else {							
 							req = ClientRequest.withDrawCustom(cardId,amt);
@@ -594,6 +611,19 @@ public class AtmClient extends Application{
 				btn500.setOnAction(e -> {
 					try {
 						amt =500;									
+						req = ClientRequest.withDraw(cardId,amt);
+						out.writeObject(req);
+						processServerRes();
+						lblBalance.setText(String.format("Twoje Saldo po wyp³acie Wynosi %.2f PLN", res.getUpdatedBalance()));
+						lblAmt.setText(String.format("Operacja wyp³acenia pieniêdzy powiod³¹ siê. Wyp³aci³eœ %.2f PLN", amt));
+												
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				});
+				btn1000.setOnAction(e -> {
+					try {
+						amt =1000;									
 						req = ClientRequest.withDraw(cardId,amt);
 						out.writeObject(req);
 						processServerRes();

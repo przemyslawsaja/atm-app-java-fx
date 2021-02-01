@@ -182,7 +182,7 @@ public class AtmServer extends Application {
 							res.setRequestedAmount(req.getAmount());
 							if (!res.isOperationSuccess())								
 							{
-								res.setErrorMessage("Nie posiadasz wystarczaj¹cych œrodków do wyp³aty wprowadzonej kwoty!");										
+								res.setErrorMessage("Nie posiadasz wystarczaj¹cych œrodków do wyp³aty wybranej kwoty!");										
 							}
 							else
 							{
