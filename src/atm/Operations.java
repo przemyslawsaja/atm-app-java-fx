@@ -6,5 +6,6 @@ public enum Operations {
 	DEPOSIT,
 	WITHDRAW,
 	WITHDRAW_CUSTOM,
+	OPERATION_HISTORY,
 	EXIT
 }

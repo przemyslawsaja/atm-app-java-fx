@@ -1,8 +1,10 @@
 package atm.server;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import atm.Operations;
+import javafx.collections.ObservableList;
 
 public class ServerResponse implements Serializable {
 	private Operations operation;
@@ -10,6 +12,7 @@ public class ServerResponse implements Serializable {
 	private float updatedBalance;
 	private float requestedAmount;
 	private String errorMessage;
+	private ArrayList<OperationHistory> operationHistoryList = new ArrayList<OperationHistory>();
 
 	public ServerResponse() {
 	}
@@ -58,4 +61,14 @@ public class ServerResponse implements Serializable {
 		}	
 		return "";
 	}
+
+	public ArrayList<OperationHistory> getOperationHistoryList() {
+		return operationHistoryList;
+	}
+
+	public void setOperationHistoryList(ArrayList<OperationHistory> operationHistoryList) {
+		this.operationHistoryList = operationHistoryList;
+	}
+
+	
 }

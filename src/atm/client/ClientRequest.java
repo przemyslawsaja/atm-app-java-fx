@@ -51,6 +51,11 @@ public class ClientRequest implements Serializable {
 	public static ClientRequest withDraw(int id, float amt) {
 		return new ClientRequest(id,amt, Operations.WITHDRAW);
 	}
+	
+	public static ClientRequest operationHistory(int id) {
+		return new ClientRequest(id, Operations.OPERATION_HISTORY);
+	}
+	
 	public static ClientRequest withDrawCustom(int id, float amt) {
 		return new ClientRequest(id,amt, Operations.WITHDRAW_CUSTOM);
 	}

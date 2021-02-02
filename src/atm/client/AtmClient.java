@@ -12,11 +12,14 @@ import java.util.Scanner;
 
 import atm.Operations;
 import atm.PinEncryptionSHA1;
+import atm.server.OperationHistory;
 import atm.server.ServerResponse;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -25,13 +28,17 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -42,12 +49,14 @@ import javafx.stage.Stage;
 public class AtmClient extends Application{
 	
 	Stage window;
-	Scene loginView, mainMenuView, balanceView, depositView, withdrawView,withdrawmoney;
+	Scene loginView, mainMenuView, balanceView, depositView, withdrawView,withdrawmoney, operationHistoryView;
 	TextField txtUserID, txtPin, txtDeposit, txtWithdraw;
-	Button btnSignIn, btnDeposit, btnWithdraw, btnCheckBal, btnMainMenuExit, btnMain, btnDepMain,btnWdMain2,btnWdMain,
-			btnBalInqClose, btnDepositCash, btnWithdrawCash, btnLoginExit, btn50, btn100, btn200, btn500, btn1000, btnCustomWithdraw;
+	Button btnSignIn, btnDeposit, btnWithdraw, btnCheckBal, btnMainMenuExit, btnMain, btnDepMain,btnWdMain2,btnWdMain, btnOperHistoryMain,
+			btnBalInqClose, btnDepositCash, btnWithdrawCash, btnLoginExit, btn50, btn100, btn200, btn500, btn1000, btnCustomWithdraw, btnOperationHistory;
 	Text errorMsg, withdrawError, depositError,withdraw2Error;
 	Label lblBalance, lblAmt;
+	ObservableList<OperationHistory> operationHistoryList;
+	TableView<OperationHistory> table;
 	static InetAddress hostname;
 	static int port=9005;
 	public static void main(String[] args) {
@@ -125,22 +134,27 @@ public class AtmClient extends Application{
 		btnWithdraw = new Button("Wyp³aæ");
 		btnCheckBal = new Button("SprawdŸ Saldo");
 		btnMainMenuExit = new Button("Zakoñcz Sesjê");
+		btnOperationHistory = new Button("Historia operacji");
 
 		btnDeposit.setMinWidth(275);
 		btnWithdraw.setMinWidth(275);
 		btnCheckBal.setMinWidth(275);
 		btnMainMenuExit.setMinWidth(275);
+		btnOperationHistory.setMinWidth(275);
 
 		btnDeposit.setMinHeight(50);
 		btnWithdraw.setMinHeight(50);
 		btnCheckBal.setMinHeight(50);
 		btnMainMenuExit.setMinHeight(50);
+		btnOperationHistory.setMinHeight(50);
 
 		menuPane.add(welcomeMsg, 0, 0, 2, 1);
 		menuPane.add(btnCheckBal, 0, 1);
 		menuPane.add(btnDeposit, 0, 2);
 		menuPane.add(btnWithdraw, 0, 3);
-		menuPane.add(btnMainMenuExit, 0, 4);
+		menuPane.add(btnOperationHistory, 0, 4);
+		menuPane.add(btnMainMenuExit, 0, 5);
+		
 		
 		//Panel Saldo konta
 		GridPane balancePane = new GridPane();
@@ -279,11 +293,52 @@ public class AtmClient extends Application{
 		*/
 		
 		
+		TableColumn<OperationHistory, String> dateColumn = new TableColumn<>("Data");
+		dateColumn.setMinWidth(100);
+		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+		
+		TableColumn<OperationHistory, String> amountColumn = new TableColumn<>("Kwota");
+		amountColumn.setMinWidth(100);
+		amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+		
+		TableColumn<OperationHistory, String> detailsColumn = new TableColumn<>("Opis");
+		detailsColumn.setMinWidth(100);
+		detailsColumn.setCellValueFactory(new PropertyValueFactory<>("details"));
+		
+		table = new TableView<>();
+		//table.setItems(operationHistoryList);
+		table.getColumns().addAll(dateColumn, amountColumn, detailsColumn);
+		
+		// panel historii operacji
+		VBox vBox = new VBox();
+		vBox.getChildren().addAll(table);
+		
+		operationHistoryView = new Scene(vBox, 400 ,450);
+		
+		btnOperHistoryMain = new Button("Menu G³ówne");
+		vBox.getChildren().add(btnOperHistoryMain);
+		//vBox.add(btnOperHistoryMain, 0, 8);
+		/*
+				GridPane operationHistoryPane = new GridPane();
+
+				operationHistoryPane.setPadding(new Insets(0, 10, 10, 10));
+				operationHistoryPane.setAlignment(Pos.CENTER);
+				operationHistoryPane.setVgap(15);
+
+				
+				btnOH = new Button("Menu G³ówne");
+				//btnBalInqClose = new Button("WyjdŸ");
+
+				operationHistoryPane.add(btnOH, 0, 4);
+		*/
+		
 		mainMenuView = new Scene(menuPane, 400, 450);
 		balanceView = new Scene(balancePane, 400, 450);
 		depositView = new Scene(depBorderPane, 400, 450);
 		withdrawView = new Scene(wdBorderPane,400, 450);
 		withdrawmoney = new Scene(withdraw,400, 450);
+		//operationHistoryView = new Scene(operationHistoryPane, 400,450);
+		
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
 		primaryStage.getIcons().add(new Image("file:gfx/logo.png"));
@@ -414,6 +469,16 @@ public class AtmClient extends Application{
 				btnWithdraw.setOnAction(e -> {
 					try {
 						currentScreen = Screen.WITHDRAW_AMOUNT;
+						goToScreen(currentScreen);
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				});
+				
+				//historia operacji
+				btnOperationHistory.setOnAction(e -> {
+					try {
+						currentScreen = Screen.OPERATION_HISTORY;
 						goToScreen(currentScreen);
 					} catch (IOException ex) {
 						ex.printStackTrace();
@@ -651,6 +716,34 @@ public class AtmClient extends Application{
 						e1.printStackTrace();
 					}
 				});			
+				break;
+			case OPERATION_HISTORY:
+				//window.setScene(operationHistoryView);
+				
+											
+					req = ClientRequest.operationHistory(cardId);
+					out.writeObject(req);
+					processServerRes();
+					
+					operationHistoryList= FXCollections.observableList(res.getOperationHistoryList());
+					table.setItems(operationHistoryList);
+					
+					
+					window.setScene(operationHistoryView);
+											
+				
+				
+				
+				//przycisk menu g³ówne
+				btnOperHistoryMain.setOnAction(e -> {
+					try {
+						currentScreen = screen.MAIN_MENU;
+						goToScreen(currentScreen);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				});
+				
 				break;
 			}
 		}

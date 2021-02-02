@@ -3,10 +3,12 @@ package atm.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import atm.Operations;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import atm.client.ClientRequest;
 
@@ -15,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
@@ -49,7 +52,7 @@ public class AtmServer extends Application {
 
 		Scene main = new Scene(box);
 		window.setScene(main);
-		primaryStage.setTitle("BANK PKO Bankomat - Server");
+		primaryStage.setTitle("Poly Bank Bankomat - Server");
 	    primaryStage.show();
 		messages.appendText("L¹czenie z Baz¹ danych ...\n");
 		Connection connection = MysqlAtmDatabase.connectToDatabase("jdbc:mysql://", "127.0.0.1", "atm", "root", "root");//laczenie z baza mysql		
@@ -120,7 +123,7 @@ public class AtmServer extends Application {
 					ServerResponse res;
 					ClientRequest req;
 
-					//odiberz zapytanie od klienta
+					//odbierz zapytanie od klienta
 					while ((req = (ClientRequest) in.readObject()) != null) {
 
 						res = new ServerResponse();
@@ -164,6 +167,8 @@ public class AtmServer extends Application {
 							res.setRequestedAmount(req.getAmount());
 							this.bankAccount.deposit(req.getAmount());
 							MysqlAtmDatabase.balanceUpdate(st,this.bankAccount.getBalance(),this.bankAccount.getAccountNumber());
+							// rejestracja wp³aty pieniêdzy na konto
+							MysqlAtmDatabase.registerDeposit(st, req.getAmount(),this.bankAccount.getAccountNumber());
 							res.setUpdatedBalance(this.bankAccount.getBalance());
 							out.writeObject(res);
 							break;
@@ -186,9 +191,20 @@ public class AtmServer extends Application {
 							}
 							else
 							{
-								MysqlAtmDatabase.balanceUpdate(st,this.bankAccount.getBalance(),this.bankAccount.getAccountNumber());	
+								MysqlAtmDatabase.balanceUpdate(st,this.bankAccount.getBalance(),this.bankAccount.getAccountNumber());
+								//zarejestrowanie operacji wyp³aty
+								MysqlAtmDatabase.registerWithdraw(st, req.getAmount(),this.bankAccount.getAccountNumber());
 								res.setUpdatedBalance(this.bankAccount.getBalance());	
 							}
+							out.writeObject(res);
+							break;
+						case OPERATION_HISTORY:
+							
+							res.setOperation(req.getOperation());
+							res.setOperationSuccess(true);
+							res.setOperationHistoryList(MysqlAtmDatabase.getOperationHistory(st, this.bankAccount.getAccountNumber()));
+							ArrayList<OperationHistory> test = res.getOperationHistoryList();
+							
 							out.writeObject(res);
 							break;
 						
