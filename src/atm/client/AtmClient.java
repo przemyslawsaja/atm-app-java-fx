@@ -91,8 +91,7 @@ public class AtmClient extends Application{
 		btnBox.getChildren().add(btnSignIn);
 		btnLoginExit = new Button("Wyjdz");
 		btnBox.getChildren().add(btnLoginExit);
-		loginPane.add(btnBox, 1, 4);
-
+		loginPane.add(btnBox, 1, 4);	
 		errorMsg = new Text();
 		errorMsg.setFill(Color.FIREBRICK);
 		loginPane.add(errorMsg, 1, 6);
@@ -225,8 +224,8 @@ public class AtmClient extends Application{
 		GridPane withdraw = new GridPane();
 		withdraw.setPadding(new Insets(10, 10, 10, 10));
 		withdraw.setAlignment(Pos.CENTER);
-		withdraw.setVgap(10);
-		
+		withdraw.setVgap(15);
+		withdraw.setHgap(15);
 
 		Text welcomeMsgs = new Text("Jak¹ Kwotê chcesz wyp³aciæ?");
 		welcomeMsgs.setFont(Font.font("Tahoma", FontWeight.NORMAL, 18));
@@ -239,20 +238,20 @@ public class AtmClient extends Application{
 		btnCustomWithdraw = new Button("Inna");
 		btnWdMain2 = new Button("Menu G³ówne");
 		
-		btn50.setMinWidth(275);
-		btn100.setMinWidth(275);
-		btn200.setMinWidth(275);
-		btn500.setMinWidth(275);
-		btn1000.setMinWidth(275);
-		btnCustomWithdraw.setMinWidth(275);
+		btn50.setMinWidth(140);
+		btn100.setMinWidth(140);
+		btn200.setMinWidth(140);
+		btn500.setMinWidth(140);
+		btn1000.setMinWidth(140);
+		btnCustomWithdraw.setMinWidth(140);
 		btnWdMain2.setMinWidth(100);
 		
-		btn50.setMinHeight(40);
-		btn100.setMinHeight(40);
-		btn200.setMinHeight(40);
-		btn500.setMinHeight(40);
-		btn1000.setMinHeight(40);
-		btnCustomWithdraw.setMinHeight(40);
+		btn50.setMinHeight(50);
+		btn100.setMinHeight(50);
+		btn200.setMinHeight(50);
+		btn500.setMinHeight(50);
+		btn1000.setMinHeight(50);
+		btnCustomWithdraw.setMinHeight(50);
 		
 		btnWdMain2.setMinHeight(20);
 		
@@ -260,13 +259,14 @@ public class AtmClient extends Application{
 		withdraw2Error.setFill(Color.FIREBRICK);
 		withdraw2Error.setWrappingWidth(300);
 		
+
 		withdraw.add(welcomeMsgs, 0, 0, 2, 1);
 		withdraw.add(btn50, 0, 1);
-		withdraw.add(btn100, 0, 2);
-		withdraw.add(btn200, 0, 3);
-		withdraw.add(btn500, 0, 4);
-		withdraw.add(btn1000, 0, 5);
-		withdraw.add(btnCustomWithdraw, 0, 6);			
+		withdraw.add(btn100, 1,1);
+		withdraw.add(btn200, 0, 2);
+		withdraw.add(btn500, 1, 2);		
+		withdraw.add(btn1000, 0, 3);
+		withdraw.add(btnCustomWithdraw, 1, 3);		
 		withdraw.add(withdraw2Error, 0, 8, 2, 1);
 		withdraw.add(btnWdMain2, 0, 10, 2, 1);		
 				
