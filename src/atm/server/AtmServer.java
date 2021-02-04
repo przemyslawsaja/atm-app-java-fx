@@ -203,7 +203,7 @@ public class AtmServer extends Application {
 							res.setOperation(req.getOperation());
 							res.setOperationSuccess(true);
 							res.setOperationHistoryList(MysqlAtmDatabase.getOperationHistory(st, this.bankAccount.getAccountNumber()));
-							ArrayList<OperationHistory> test = res.getOperationHistoryList();
+							
 							
 							out.writeObject(res);
 							break;

@@ -73,25 +73,42 @@ public class AtmClient extends Application{
 		
 		// Panel Logowania
 		GridPane loginPane = new GridPane();
+		
+		
+		loginPane.setStyle("-fx-background-image: url('file:gfx/loginBackground.jpg')");
+		
+		
 		loginPane.setAlignment(Pos.CENTER);
 		loginPane.setHgap(10);
 		loginPane.setVgap(10);
 		loginPane.setPadding(new Insets(25, 25, 25, 25));
 		Text title = new Text("Witamy w Poly Bank\nWprowadz ID karty oraz PIN:");
-		title.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+		title.setFill(Color.WHITE);
+		title.setStrokeWidth(1.2); 
+		title.setStroke(Color.BLACK);
+		title.setFont(Font.font("Tahoma", FontWeight.BOLD, 23));
 		title.setTextAlignment(TextAlignment.CENTER);
 		loginPane.add(title, 0, 0, 2, 1);
 
 		Label lblUserID = new Label("ID:");
 		loginPane.add(lblUserID, 0, 2);
+		lblUserID.setTextFill(Color.WHITE);
+		lblUserID.setFont(Font.font("Tahoma", FontWeight.BOLD,18));
 
 		txtUserID = new TextField();
+		txtUserID.setPromptText("ID");
+		
+
 		loginPane.add(txtUserID, 1, 2);
 
 		Label lblPin = new Label("PIN:");
 		loginPane.add(lblPin, 0, 3);
+		lblPin.setTextFill(Color.WHITE);
+		lblPin.setFont(Font.font("Tahoma", FontWeight.BOLD,18));
 
 		txtPin = new PasswordField();
+		txtPin.setPromptText("PIN");
+
 		loginPane.add(txtPin, 1, 3);
 
 		btnSignIn = new Button("Zaloguj");
@@ -102,8 +119,17 @@ public class AtmClient extends Application{
 		btnBox.getChildren().add(btnLoginExit);
 		loginPane.add(btnBox, 1, 4);	
 		errorMsg = new Text();
-		errorMsg.setFill(Color.FIREBRICK);
-		loginPane.add(errorMsg, 1, 6);
+		errorMsg.setFill(Color.RED);
+		errorMsg.setFont(Font.font("Tahoma", FontWeight.BOLD,16));
+		
+		loginPane.add(errorMsg,1, 6);
+		
+		
+		
+		
+		
+		
+		
 		// Blokada wy³¹czania przez klikniêcie X
 		primaryStage.setOnCloseRequest(e -> {
 		e.consume();
@@ -134,7 +160,7 @@ public class AtmClient extends Application{
 		btnWithdraw = new Button("Wyp³aæ");
 		btnCheckBal = new Button("SprawdŸ Saldo");
 		btnMainMenuExit = new Button("Zakoñcz Sesjê");
-		btnOperationHistory = new Button("Historia operacji");
+		btnOperationHistory = new Button("Historia transakcji");
 
 		btnDeposit.setMinWidth(275);
 		btnWithdraw.setMinWidth(275);
@@ -286,30 +312,35 @@ public class AtmClient extends Application{
 				
 		loginView = new Scene(loginPane, 400, 450);
 		
-		/*
-		Image backgroundImg = new Image("file:gfx/tlo.jpg");
-		ImageView mv=new ImageView(backgroundImg);
-		loginPane.getChildren().addAll(mv);
-		*/
+
 		
 		
 		TableColumn<OperationHistory, String> dateColumn = new TableColumn<>("Data");
 		dateColumn.setMinWidth(100);
+		dateColumn.setPrefWidth(150);
+		dateColumn.setMaxWidth(200);
 		dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+	
 		
 		TableColumn<OperationHistory, String> amountColumn = new TableColumn<>("Kwota");
-		amountColumn.setMinWidth(100);
+		amountColumn.setMinWidth(80);
+		amountColumn.setPrefWidth(117);
+		amountColumn.setMaxWidth(150);
 		amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+	
 		
 		TableColumn<OperationHistory, String> detailsColumn = new TableColumn<>("Opis");
-		detailsColumn.setMinWidth(100);
+		detailsColumn.setMinWidth(80);
+		detailsColumn.setPrefWidth(117);
+		detailsColumn.setMaxWidth(150);
 		detailsColumn.setCellValueFactory(new PropertyValueFactory<>("details"));
+	
 		
 		table = new TableView<>();
-		//table.setItems(operationHistoryList);
+
 		table.getColumns().addAll(dateColumn, amountColumn, detailsColumn);
 		
-		// panel historii operacji
+		// panel historii transakcji (operacji)
 		VBox vBox = new VBox();
 		vBox.getChildren().addAll(table);
 		
@@ -317,27 +348,14 @@ public class AtmClient extends Application{
 		
 		btnOperHistoryMain = new Button("Menu G³ówne");
 		vBox.getChildren().add(btnOperHistoryMain);
-		//vBox.add(btnOperHistoryMain, 0, 8);
-		/*
-				GridPane operationHistoryPane = new GridPane();
-
-				operationHistoryPane.setPadding(new Insets(0, 10, 10, 10));
-				operationHistoryPane.setAlignment(Pos.CENTER);
-				operationHistoryPane.setVgap(15);
-
-				
-				btnOH = new Button("Menu G³ówne");
-				//btnBalInqClose = new Button("WyjdŸ");
-
-				operationHistoryPane.add(btnOH, 0, 4);
-		*/
+		
 		
 		mainMenuView = new Scene(menuPane, 400, 450);
 		balanceView = new Scene(balancePane, 400, 450);
 		depositView = new Scene(depBorderPane, 400, 450);
 		withdrawView = new Scene(wdBorderPane,400, 450);
 		withdrawmoney = new Scene(withdraw,400, 450);
-		//operationHistoryView = new Scene(operationHistoryPane, 400,450);
+	
 		
 		window.setScene(loginView);
 		primaryStage.setResizable(false);
@@ -475,7 +493,7 @@ public class AtmClient extends Application{
 					}
 				});
 				
-				//historia operacji
+				//historia transakcji (operacji)
 				btnOperationHistory.setOnAction(e -> {
 					try {
 						currentScreen = Screen.OPERATION_HISTORY;
@@ -491,6 +509,7 @@ public class AtmClient extends Application{
 					req = ClientRequest.exitSession(cardId);
 					try {
 						out.writeObject(req);
+						
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
