@@ -223,20 +223,22 @@ public class AtmServer extends Application {
 							if (req.getcardId() == -1) {
 								messages.appendText(
 										String.format("%nKlient Bankomatu roz³¹czony%n---%n", req.getcardId()));
+									in.close();
+									out.close();
+									socket.close();
 							} else {
 								messages.appendText(String.format("%nKlien Bankomatu - ID Karty #: %s Roz³¹czony.%n---%n",
 										req.getcardId()));
+								in.close();
+								out.close();
+								socket.close();
 							}
 						}
 
 					}
-				} catch (
-
-				IOException ioe) {
-					System.out.printf("IOException: %s%n", ioe);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
+				} catch (IOException | ClassNotFoundException e) {
+					
+				} 
 			}
 
 		}
