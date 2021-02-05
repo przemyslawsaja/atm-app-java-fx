@@ -187,7 +187,7 @@ public class MysqlAtmDatabase {
 		ArrayList<OperationHistory> operationHistoryList = new ArrayList();
 
 		String sql = "select operation_date, amount, details from operation_history where account_number='"
-				+ accountNunber + "' order by operation_date desc;";
+				+ accountNunber + "' order by operation_date desc limit 10;";
 
 		try {
 			ResultSet rss = s.executeQuery(sql);
