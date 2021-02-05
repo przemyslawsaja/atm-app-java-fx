@@ -559,15 +559,15 @@ public class AtmClient extends Application{
 						
 						if (!txtDeposit.getText().equals("")) {
 							amt = Float.parseFloat(txtDeposit.getText());							
-							if(amt<50)
+							if(amt<10)
 							{
 								currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
-								depositError.setText("Minimalna kwota, mo¿liwa do wp³acenia do 50z³!");
+								depositError.setText("Minimalna kwota, mo¿liwa do wp³acenia to 10z³!");
 							}
-							else if(amt%50.00!=0)
+							else if(amt%10.00!=0)
 							{
 								currentScreen = Screen.DEPOSIT_PROMPT_AMOUNT;
-								depositError.setText("Kwota, któr¹ wprowadzi³eœ jest nieprawid³owa! Mo¿liwoœæ wp³ata sumy, która jest wielokrotnoœci¹ 50.");
+								depositError.setText("Kwota, któr¹ wprowadzi³eœ jest nieprawid³owa! Mo¿liwoœæ wp³ata sumy, która jest wielokrotnoœci¹ 10.");
 							}
 							else {							
 							req = ClientRequest.deposit(cardId,amt);
